@@ -6,4 +6,21 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {}
+
+  private readonly returnedUserData: (keyof User)[] = [
+    'createdAt',
+    'email',
+    'id',
+    'password',
+    'phone',
+    'role',
+    'updatedAt',
+    'username',
+  ];
+
+  async getAllUsers() {
+    return await this.userRepository.find({
+      select: this.returnedUserData,
+    });
+  }
 }
