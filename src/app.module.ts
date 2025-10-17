@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { isDev } from './shared/utils/is-dev';
 import { join } from 'path';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { join } from 'path';
         synchronize: isDev(),
       }),
     }),
+    UserModule,
   ],
 })
 export class AppModule {}
