@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ConflictException } from '@nestjs/common';
 
 describe('UserService', () => {
   let service: UserService;
@@ -20,8 +21,15 @@ describe('UserService', () => {
     id,
     username: 'User',
     email: 'user@example.com',
-    phone: '123',
+    phone: '+380000000000',
     role: 'USER',
+  };
+
+  const dto = {
+    username: 'TestUser',
+    email: 'newtestuser@test.com',
+    password: '123456',
+    phone: '+380000000001',
   };
 
   beforeEach(async () => {
@@ -71,5 +79,32 @@ describe('UserService', () => {
     repo.findOne = jest.fn().mockResolvedValue(null);
 
     await expect(service.findById(id)).rejects.toThrow('Користувача з таким id не існує.');
+  });
+
+  it('should return new user', async () => {
+    repo.save = jest.fn().mockResolvedValue({
+      username: dto.username,
+      email: dto.email,
+      phone: dto.phone,
+      id,
+      role: 'USER',
+    });
+    await expect(
+      service.create({
+        ...dto,
+      }),
+    ).resolves.toEqual({
+      username: dto.username,
+      email: dto.email,
+      phone: dto.phone,
+      id,
+      role: 'USER',
+    });
+  });
+
+  it('should throw ConflictException', async () => {
+    repo.findOne = jest.fn().mockResolvedValue({ ...user, email: dto.email });
+
+    await expect(service.create(dto)).rejects.toThrow(ConflictException);
   });
 });
