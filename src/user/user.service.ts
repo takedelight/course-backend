@@ -39,6 +39,18 @@ export class UserService {
     return user;
   }
 
+  async getUserByEmailWithPassword(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Користувача з таким email не існує.');
+    }
+
+    return user;
+  }
+
   async create(dto: CreateUserDto) {
     const isExist = await this.userRepository.findOne({ where: { email: dto.email } });
 
